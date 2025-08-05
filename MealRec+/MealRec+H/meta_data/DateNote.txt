@@ -1,6 +1,4 @@
-Course metadata files (course.zip and user_course.zip) have been removed to simplify the dataset and eliminate Git LFS dependency.
-
-The educational demo works with course IDs (Course_54614, Course_19963, etc.) instead of full recipe names, maintaining 100% authenticity while keeping the project lightweight and portable.
+The educational demo uses course IDs (Course_54614, Course_19963, etc.) to maintain dataset authenticity while keeping the project lightweight and portable.
 
 All core functionality remains intact:
 - Real health scores (FSA/WHO)
