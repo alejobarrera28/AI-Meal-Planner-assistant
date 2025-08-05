@@ -5,7 +5,7 @@ Loads and queries the MealRec+ dataset
 
 import os
 from typing import Dict, List, Optional, Any
-from data_models import MealRecipe, QueryResult
+from .models import MealRecipe, QueryResult
 
 
 class MealRecRAGDatabase:

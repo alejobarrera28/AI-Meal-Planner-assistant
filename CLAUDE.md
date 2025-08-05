@@ -10,8 +10,8 @@ This is an **Educational AI Meal Planning Agent** that demonstrates RAG + Tool C
 
 This is an educational demo project. The main operations are:
 
-- **Run demo**: `python3 demo.py` - Complete educational demonstration
-- **Test components**: Import individual modules (`rag_database.py`, `tools.py`, `agent.py`)
+- **Run demo**: `python3 src/main.py` - Complete educational demonstration
+- **Test components**: Import individual modules from the `src/` directory
 
 ## Dataset Structure
 
@@ -25,15 +25,15 @@ Contains only essential files:
 
 ## Key Python Components
 
-### Educational Demo (`demo.py`)
+### Educational Demo (`src/main.py`)
 - **Main entry point**: Complete RAG + Tool Calls + AI Agents demonstration
 - **Prerequisites**: Requires OpenAI API key
 
 ### Core Modules
-- **data_models.py**: Simple dataclasses (MealRecipe, QueryResult)
-- **rag_database.py**: RAG knowledge base that loads real MealRec+ data
-- **tools.py**: Tool call interfaces for AI agents
-- **agent.py**: AI agent with LLM-powered reasoning
+- **src/data/**: Database and data models for MealRec+ data
+- **src/tools/**: Comprehensive tool suite for AI agents
+- **src/core/**: AI chatbot with LLM-powered reasoning
+- **src/demo/**: Interactive and example demonstrations
 
 ## Data Format Notes
 

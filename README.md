@@ -32,7 +32,7 @@ Uses **actual MealRec+ files**:
 **Prerequisites**: You need an OpenAI API key
 ```bash
 export OPENAI_API_KEY="your-api-key-here"
-python3 demo.py
+python3 src/main.py
 ```
 
 Example output:
@@ -70,36 +70,38 @@ Example output:
 
 ## 🔧 Core Components
 
-### 1. RAG Database (`rag_database.py`)
+### 1. RAG Database (`src/data/database.py`)
 ```python
-from rag_database import MealRecRAGDatabase
+from data.database import MealRecRAGDatabase
 
 # Loads real MealRec+ dataset files
-rag_db = MealRecRAGDatabase("MealRec+/MealRec+H")
+rag_db = MealRecRAGDatabase()
 
 # Retrieval with filtering
 result = rag_db.retrieve_recipes(category=1, max_fsa_score=8.0, limit=10)
 ```
 
-### 2. Tool Calls (`tools.py`)
+### 2. Tool Calls (`src/tools/`)
 ```python
-from tools import MealPlanningTools
+from tools.registry import ToolRegistry
 
-tools = MealPlanningTools(rag_db)
+tool_registry = ToolRegistry(rag_db)
 
-# Structured function calls
-recipes = tools.search_healthy_recipes(category="main", health_preference="healthy")
-analysis = tools.analyze_meal_compositions(sample_size=5)
+# Execute structured function calls
+result = tool_registry.execute_tool("filter_courses", criteria={
+    "category": "main", 
+    "max_fsa_score": 6.0
+})
 ```
 
-### 3. AI Agent (`agent.py`)
+### 3. AI Agent (`src/core/chatbot.py`)
 ```python
-from agent import MealPlanningAgent
+from core.chatbot import MealPlanningChatbot
 
-agent = MealPlanningAgent(rag_db, openai_api_key="required")
+chatbot = MealPlanningChatbot(rag_db, tool_registry, openai_api_key)
 
-# LLM reasoning chain: Parse → Tools → LLM Analysis → Response
-result = agent.plan_meal("I want a healthy 3-course meal")
+# LLM reasoning with tool calls: Query → Tools → Response
+chatbot.chat("I want a healthy 3-course meal")
 ```
 
 ## 🎯 Learning Objectives
@@ -131,8 +133,8 @@ result = agent.plan_meal("I want a healthy 3-course meal")
 
 ### Multi-Course Planning
 ```python
-# Agent can plan complete meals
-result = agent.plan_meal("Plan a healthy 3-course meal")
+# Chatbot can plan complete meals
+chatbot.chat("Plan a healthy 3-course meal")
 # Returns: appetizer + main + dessert with health optimization
 ```
 
@@ -145,9 +147,12 @@ who_score = 5.8  # World Health Organization (lower = healthier)
 
 ### Extensible Tool System
 ```python
-# Easy to add new tools
-def new_tool(self, param: str) -> Dict[str, Any]:
-    return {"tool": "new_tool", "result": "data"}
+# Easy to add new tools to the registry
+from tools.base import BaseTool
+
+class NewTool(BaseTool):
+    def execute(self, param: str) -> Dict[str, Any]:
+        return {"tool": "new_tool", "result": "data"}
 ```
 
 ## 🎪 Lecture Integration
@@ -172,16 +177,32 @@ Perfect for demonstrating:
 
 ```
 📁 AI-Meal-Planner-assistant/
-├── 📄 data_models.py          # Data structures (MealRecipe, QueryResult)
-├── 📄 rag_database.py         # RAG knowledge base (loads MealRec+ data)
-├── 📄 tools.py                # Tool call interfaces (search, analyze)
-├── 📄 agent.py                # AI agent with LLM reasoning
-├── 📄 demo.py                 # Complete educational demonstration
-└── 📁 MealRec+/               # Real dataset files
-    └── 📁 MealRec+H/
-        ├── course_category.txt
-        ├── healthiness/
-        └── meal_course.txt
+├── 📁 src/                    # Main application code
+│   ├── 📄 main.py            # Entry point and demo orchestration
+│   ├── 📁 core/              # AI chatbot and schemas
+│   │   ├── chatbot.py        # LLM-powered meal planning chatbot
+│   │   └── schemas.py        # Data validation schemas
+│   ├── 📁 data/              # Database and data models
+│   │   ├── database.py       # RAG knowledge base (loads MealRec+ data)
+│   │   └── models.py         # Data structures (MealRecipe, etc.)
+│   ├── 📁 tools/             # Comprehensive tool suite
+│   │   ├── registry.py       # Tool registration and execution
+│   │   ├── filtering.py      # Course filtering tools
+│   │   ├── meal_planning.py  # Meal generation tools
+│   │   ├── health.py         # Health analysis tools
+│   │   ├── user.py           # User preference tools
+│   │   └── analysis.py       # Recipe analysis tools
+│   └── 📁 demo/              # Demo and interaction modules
+│       ├── examples.py       # Example conversations
+│       └── interactive.py    # Interactive demo mode
+├── 📁 MealRec+/              # Real dataset files
+│   └── 📁 MealRec+H/
+│       ├── course_category.txt
+│       ├── healthiness/
+│       └── meal_course.txt
+├── 📄 requirements.txt       # Dependencies
+├── 📄 CLAUDE.md             # Development instructions
+└── 📄 README.md             # This file
 ```
 
 ---
