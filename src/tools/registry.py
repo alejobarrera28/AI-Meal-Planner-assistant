@@ -13,23 +13,23 @@ from .analysis import SummarizeRecipeTool, RecommendSimilarMealsTool
 class ToolRegistry:
     """Registry for managing all available tools"""
     
-    def __init__(self, rag_db):
-        self.rag_db = rag_db
+    def __init__(self, meal_db):
+        self.meal_db = meal_db
         self._tools = self._initialize_tools()
     
     def _initialize_tools(self) -> Dict[str, Any]:
         """Initialize all available tools"""
         return {
-            "filter_courses": FilterCoursesTool(self.rag_db),
-            "search_courses_by_category": SearchCoursesByCategoryTool(self.rag_db),
-            "find_healthy_courses": FindHealthyCoursesTool(self.rag_db),
-            "generate_meal_plan": GenerateMealPlanTool(self.rag_db),
-            "get_meal_composition": GetMealCompositionTool(self.rag_db),
-            "calculate_health_score": CalculateHealthScoreTool(self.rag_db),
-            "swap_for_healthier": SwapForHealthierTool(self.rag_db),
-            "get_user_history": GetUserHistoryTool(self.rag_db),
-            "summarize_recipe": SummarizeRecipeTool(self.rag_db),
-            "recommend_similar_meals": RecommendSimilarMealsTool(self.rag_db)
+            "filter_courses": FilterCoursesTool(self.meal_db),
+            "search_courses_by_category": SearchCoursesByCategoryTool(self.meal_db),
+            "find_healthy_courses": FindHealthyCoursesTool(self.meal_db),
+            "generate_meal_plan": GenerateMealPlanTool(self.meal_db),
+            "get_meal_composition": GetMealCompositionTool(self.meal_db),
+            "calculate_health_score": CalculateHealthScoreTool(self.meal_db),
+            "swap_for_healthier": SwapForHealthierTool(self.meal_db),
+            "get_user_history": GetUserHistoryTool(self.meal_db),
+            "summarize_recipe": SummarizeRecipeTool(self.meal_db),
+            "recommend_similar_meals": RecommendSimilarMealsTool(self.meal_db)
         }
     
     def get_tool(self, tool_name: str):
@@ -60,8 +60,8 @@ class ToolRegistry:
 class MealPlanningTools:
     """Legacy wrapper to maintain compatibility with existing code"""
     
-    def __init__(self, rag_db):
-        self.registry = ToolRegistry(rag_db)
+    def __init__(self, meal_db):
+        self.registry = ToolRegistry(meal_db)
     
     def filter_courses(self, criteria: Dict[str, Any]) -> Dict[str, Any]:
         return self.registry.execute_tool("filter_courses", criteria=criteria)

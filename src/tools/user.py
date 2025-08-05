@@ -11,12 +11,12 @@ class GetUserHistoryTool(BaseTool):
     
     def execute(self, user_id: int) -> Dict[str, Any]:
         # Get user's course interactions
-        user_courses = [course_idx for uid, course_idx in self.rag_db.user_course_interactions if uid == user_id]
+        user_courses = [course_idx for uid, course_idx in self.meal_db.user_course_interactions if uid == user_id]
         
         # Get user's meal interactions
         user_meals = []
         for split in ["train", "test", "tune"]:
-            user_meals.extend([meal_idx for uid, meal_idx in self.rag_db.user_meal_interactions.get(split, []) if uid == user_id])
+            user_meals.extend([meal_idx for uid, meal_idx in self.meal_db.user_meal_interactions.get(split, []) if uid == user_id])
         
         if not user_courses and not user_meals:
             return {"error": f"No history found for user {user_id}"}
@@ -26,8 +26,8 @@ class GetUserHistoryTool(BaseTool):
         health_scores = []
         
         for course_idx in user_courses:
-            if course_idx in self.rag_db.recipes_db:
-                recipe = self.rag_db.recipes_db[course_idx]
+            if course_idx in self.meal_db.recipes_db:
+                recipe = self.meal_db.recipes_db[course_idx]
                 category_counts[recipe.category] += 1
                 health_scores.append(recipe.fsa_health_score)
         

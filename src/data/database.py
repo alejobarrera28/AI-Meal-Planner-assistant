@@ -1,5 +1,5 @@
 """
-RAG Database - Retrieval-Augmented Generation Knowledge Base
+Meal Database - Knowledge Base for meal planning
 Loads and queries the MealRec+ dataset
 """
 
@@ -8,12 +8,12 @@ from typing import Dict, List, Optional, Any
 from .models import MealRecipe, QueryResult
 
 
-class MealRecRAGDatabase:
-    """RAG Knowledge Base using MealRec+ dataset files"""
+class MealDatabase:
+    """Knowledge Base using MealRec+ dataset files"""
 
     def __init__(self, data_path: str = "MealRec+/MealRec+H"):
         self.data_path = data_path
-        print(f"🔍 Loading MealRec+ RAG database from: {data_path}")
+        print(f"🔍 Loading MealRec+ database from: {data_path}")
 
         # Load ALL real dataset components
         self.course_categories = self._load_course_categories()
@@ -29,7 +29,7 @@ class MealRecRAGDatabase:
         # Create structured knowledge base using ONLY real data
         self.recipes_db = self._build_real_recipe_database()
 
-        print(f"📊 RAG Database loaded: {len(self.recipes_db)} recipes indexed")
+        print(f"📊 Database loaded: {len(self.recipes_db)} recipes indexed")
         print(f"   - {len(self.course_categories)} course categories")
         print(f"   - {len(self.meal_course_mapping)} meal compositions")
         print(f"   - {len(self.user_course_interactions)} user-course interactions")
@@ -189,7 +189,7 @@ class MealRecRAGDatabase:
         max_fsa_score: Optional[float] = None,
         limit: int = 10,
     ) -> QueryResult:
-        """RAG Retrieval: Find relevant recipes based on criteria"""
+        """Find relevant recipes based on criteria"""
 
         matching_recipes = []
 

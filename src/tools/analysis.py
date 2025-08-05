@@ -11,12 +11,12 @@ class SummarizeRecipeTool(BaseTool):
     
     def execute(self, course_id: int) -> Dict[str, Any]:
         # Convert real course ID to course index if needed
-        course_idx = ToolUtils.convert_course_id_to_index(self.rag_db, course_id)
+        course_idx = ToolUtils.convert_course_id_to_index(self.meal_db, course_id)
         
-        if course_idx not in self.rag_db.recipes_db:
+        if course_idx not in self.meal_db.recipes_db:
             return {"error": f"Course {course_id} not found"}
             
-        recipe = self.rag_db.recipes_db[course_idx]
+        recipe = self.meal_db.recipes_db[course_idx]
         category_name = ["appetizer", "main course", "dessert"][recipe.category]
         
         # Health rating
@@ -39,7 +39,7 @@ class SummarizeRecipeTool(BaseTool):
             summary += " Consider this as an occasional treat rather than a regular choice."
             
         return {
-            "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+            "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
             "course_name": recipe.course_name,
             "summary": summary,
             "category": category_name,
@@ -57,12 +57,12 @@ class RecommendSimilarMealsTool(BaseTool):
     
     def execute(self, course_id: int, limit: int = 5) -> Dict[str, Any]:
         # Convert real course ID to course index if needed
-        course_idx = ToolUtils.convert_course_id_to_index(self.rag_db, course_id)
+        course_idx = ToolUtils.convert_course_id_to_index(self.meal_db, course_id)
         
-        if course_idx not in self.rag_db.recipes_db:
+        if course_idx not in self.meal_db.recipes_db:
             return {"error": f"Course {course_id} not found"}
         
-        reference_recipe = self.rag_db.recipes_db[course_idx]
+        reference_recipe = self.meal_db.recipes_db[course_idx]
         reference_category = reference_recipe.category
         
         # Find meals containing the reference course
@@ -70,23 +70,23 @@ class RecommendSimilarMealsTool(BaseTool):
         
         # Find similar meals (same category courses)
         similar_meals = []
-        for meal_id, course_indices in self.rag_db.meal_course_mapping.items():
+        for meal_id, course_indices in self.meal_db.meal_course_mapping.items():
             if meal_id in meals_with_course:
                 continue  # Skip meals that already contain this course
                 
             # Check if meal has courses in same category
             has_similar_category = any(
-                self.rag_db.recipes_db.get(idx, {}).category == reference_category 
+                self.meal_db.recipes_db.get(idx, {}).category == reference_category 
                 for idx in course_indices
-                if idx in self.rag_db.recipes_db
+                if idx in self.meal_db.recipes_db
             )
             
             if has_similar_category:
                 # Calculate meal health score
                 meal_scores = [
-                    self.rag_db.recipes_db[idx].fsa_health_score 
+                    self.meal_db.recipes_db[idx].fsa_health_score 
                     for idx in course_indices 
-                    if idx in self.rag_db.recipes_db
+                    if idx in self.meal_db.recipes_db
                 ]
                 avg_score = sum(meal_scores) / len(meal_scores) if meal_scores else 10
                 
@@ -96,12 +96,12 @@ class RecommendSimilarMealsTool(BaseTool):
                     "average_health_score": round(avg_score, 2),
                     "courses": [
                         {
-                            "course_id": ToolUtils.get_real_course_id(self.rag_db, idx),
-                            "course_name": self.rag_db.recipes_db[idx].course_name,
-                            "category": ["appetizer", "main", "dessert"][self.rag_db.recipes_db[idx].category]
+                            "course_id": ToolUtils.get_real_course_id(self.meal_db, idx),
+                            "course_name": self.meal_db.recipes_db[idx].course_name,
+                            "category": ["appetizer", "main", "dessert"][self.meal_db.recipes_db[idx].category]
                         }
                         for idx in course_indices
-                        if idx in self.rag_db.recipes_db
+                        if idx in self.meal_db.recipes_db
                     ]
                 })
         
@@ -110,7 +110,7 @@ class RecommendSimilarMealsTool(BaseTool):
         
         return {
             "reference_course": {
-                "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                 "course_name": reference_recipe.course_name,
                 "category": ["appetizer", "main", "dessert"][reference_category]
             },

@@ -33,7 +33,7 @@ class GenerateMealPlanTool(BaseTool):
                 
             # Find best course in category
             best_courses = []
-            for course_idx, recipe in self.rag_db.recipes_db.items():
+            for course_idx, recipe in self.meal_db.recipes_db.items():
                 if recipe.category == category_idx and recipe.fsa_health_score <= max_score:
                     best_courses.append((course_idx, recipe))
             
@@ -43,7 +43,7 @@ class GenerateMealPlanTool(BaseTool):
                 course_idx, recipe = best_courses[0]
                 
                 meal_plan[category] = {
-                    "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                    "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                     "course_name": recipe.course_name,
                     "fsa_score": recipe.fsa_health_score,
                     "who_score": recipe.who_health_score,
@@ -71,19 +71,19 @@ class GetMealCompositionTool(BaseTool):
     """Get all courses that make up a specific meal"""
     
     def execute(self, meal_id: int) -> Dict[str, Any]:
-        if meal_id not in self.rag_db.meal_course_mapping:
+        if meal_id not in self.meal_db.meal_course_mapping:
             return {"error": f"Meal {meal_id} not found"}
         
-        course_indices = self.rag_db.meal_course_mapping[meal_id]
+        course_indices = self.meal_db.meal_course_mapping[meal_id]
         courses = []
         total_fsa = 0
         total_who = 0
         
         for course_idx in course_indices:
-            if course_idx in self.rag_db.recipes_db:
-                recipe = self.rag_db.recipes_db[course_idx]
+            if course_idx in self.meal_db.recipes_db:
+                recipe = self.meal_db.recipes_db[course_idx]
                 courses.append({
-                    "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                    "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                     "course_name": recipe.course_name,
                     "category": ["appetizer", "main", "dessert"][recipe.category],
                     "fsa_score": recipe.fsa_health_score,

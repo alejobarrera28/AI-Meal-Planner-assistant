@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 class BaseTool(ABC):
     """Base class for all meal planning tools"""
     
-    def __init__(self, rag_db):
-        self.rag_db = rag_db
+    def __init__(self, meal_db):
+        self.meal_db = meal_db
     
     @abstractmethod
     def execute(self, **kwargs) -> Dict[str, Any]:
@@ -22,9 +22,9 @@ class ToolUtils:
     """Common utilities for tools"""
     
     @staticmethod
-    def get_real_course_id(rag_db, course_idx: int) -> int:
+    def get_real_course_id(meal_db, course_idx: int) -> int:
         """Get real course ID from course index"""
-        for real_id, idx in rag_db.course_to_index.items():
+        for real_id, idx in meal_db.course_to_index.items():
             if idx == course_idx:
                 return real_id
         return course_idx  # Fallback to course index
@@ -44,8 +44,8 @@ class ToolUtils:
             return "poor"
 
     @staticmethod
-    def convert_course_id_to_index(rag_db, course_id: int) -> int:
+    def convert_course_id_to_index(meal_db, course_id: int) -> int:
         """Convert real course ID to course index if needed"""
-        if course_id in rag_db.course_to_index:
-            return rag_db.course_to_index[course_id]
+        if course_id in meal_db.course_to_index:
+            return meal_db.course_to_index[course_id]
         return course_id

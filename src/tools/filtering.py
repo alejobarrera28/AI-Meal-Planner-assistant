@@ -22,7 +22,7 @@ class FilterCoursesTool(BaseTool):
         
         matching_courses = []
         
-        for course_idx, recipe in self.rag_db.recipes_db.items():
+        for course_idx, recipe in self.meal_db.recipes_db.items():
             # Apply filters
             if category_filter is not None and recipe.category != category_filter:
                 continue
@@ -32,7 +32,7 @@ class FilterCoursesTool(BaseTool):
                 continue
                 
             matching_courses.append({
-                "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                 "course_name": recipe.course_name,
                 "category": ["appetizer", "main", "dessert"][recipe.category],
                 "fsa_score": recipe.fsa_health_score,
@@ -61,10 +61,10 @@ class SearchCoursesByCategoryTool(BaseTool):
             return {"error": f"Invalid category: {category}. Use appetizer, main, or dessert"}
         
         courses = []
-        for course_idx, recipe in self.rag_db.recipes_db.items():
+        for course_idx, recipe in self.meal_db.recipes_db.items():
             if recipe.category == category_idx:
                 courses.append({
-                    "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                    "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                     "course_name": recipe.course_name,
                     "fsa_score": recipe.fsa_health_score,
                     "who_score": recipe.who_health_score,
@@ -92,11 +92,11 @@ class FindHealthyCoursesTool(BaseTool):
             category_filter = category_map.get(category)
         
         healthy_courses = []
-        for course_idx, recipe in self.rag_db.recipes_db.items():
+        for course_idx, recipe in self.meal_db.recipes_db.items():
             if recipe.fsa_health_score <= max_fsa_score:
                 if category_filter is None or recipe.category == category_filter:
                     healthy_courses.append({
-                        "course_id": ToolUtils.get_real_course_id(self.rag_db, course_idx),
+                        "course_id": ToolUtils.get_real_course_id(self.meal_db, course_idx),
                         "course_name": recipe.course_name,
                         "category": ["appetizer", "main", "dessert"][recipe.category],
                         "fsa_score": recipe.fsa_health_score,

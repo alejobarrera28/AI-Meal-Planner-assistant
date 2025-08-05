@@ -4,7 +4,7 @@ AI Meal Planning Chatbot with LLM function calling
 
 import json
 from typing import Dict, List, Any
-import openai
+from openai import OpenAI
 from .schemas import get_tool_schemas
 
 
@@ -12,11 +12,14 @@ class MealPlanningChatbot:
     """AI Meal Planning Chatbot with LLM function calling"""
 
     def __init__(
-        self, rag_db, tool_registry, openai_api_key: str, model: str = "gpt-4"
+        self, meal_db, tool_registry, api_key: str, model: str = "meta-llama/Llama-3-8b-chat-hf"
     ):
-        self.rag_db = rag_db
+        self.meal_db = meal_db
         self.tool_registry = tool_registry
-        self.client = openai.OpenAI(api_key=openai_api_key)
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.together.xyz/v1"
+        )
         self.model = model
         self.conversation_history = []
         print("🤖 Meal Planning Chatbot initialized with function calling capabilities")
