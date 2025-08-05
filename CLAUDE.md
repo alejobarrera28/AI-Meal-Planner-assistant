@@ -4,51 +4,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is the MealRec+ dataset repository - a meal recommendation dataset with meal-course affiliation for personalization and healthiness evaluation. The repository contains two dataset variants (MealRec+H and MealRec+L) along with Python utilities for data loading and healthiness evaluation.
+This is an **Educational AI Meal Planning Agent** that demonstrates RAG + Tool Calls + AI Agents using the MealRec+ dataset. It's designed for lectures on practical AI agent implementation.
 
 ## Common Development Commands
 
-Since this is a research dataset repository, there are no build/test commands. The main operations are:
+This is an educational demo project. The main operations are:
 
-- **Load data**: `python3 MealRec+/data_load.py` - Loads and processes the dataset files
-- **Evaluate healthiness metrics**: `python3 healthiness_eval.py` - Evaluates FSA/WHO healthiness scores and ranking exposure
+- **Run demo**: `python3 demo.py` - Complete educational demonstration
+- **Test components**: Import individual modules (`rag_database.py`, `tools.py`, `agent.py`)
 
 ## Dataset Structure
 
-The repository contains two main dataset variants:
-- `MealRec+H/` - High-density dataset (0.77% user-meal interaction density)
-- `MealRec+L/` - Low-density dataset (0.17% user-meal interaction density)
+The repository uses a simplified MealRec+ dataset variant:
+- `MealRec+H/` - High-density dataset for educational purposes
 
-Each dataset contains:
-- **Interaction data**: user-course, user-meal (train/tune/test splits)
-- **Affiliation data**: meal-course, course-category mappings
-- **Healthiness data**: FSA and WHO scores for users, meals, and courses
-- **Metadata**: course information, user mappings
+Contains only essential files:
+- **Core data**: course_category.txt, meal_course.txt  
+- **Health scores**: course_fsa.txt, course_who.txt (in healthiness/ folder)
+- **Metadata**: course2index.txt (in meta_data/ folder)
 
 ## Key Python Components
 
-### Data Loading (`MealRec+/data_load.py`)
-- **BasicDataset**: Base class for all dataset types
-- **MealTrainDataset/MealTestDataset**: Handle user-meal interactions for training/testing
-- **ItemDataset**: Handles user-course interactions 
-- **AffiliationDataset**: Manages meal-course affiliations
-- **CategoryDataset**: Manages course-category mappings
-- **get_dataset()**: Main function to load all dataset components
+### Educational Demo (`demo.py`)
+- **Main entry point**: Complete RAG + Tool Calls + AI Agents demonstration
+- **Prerequisites**: Requires OpenAI API key
 
-### Healthiness Evaluation (`healthiness_eval.py`)
-- **NutritionMetric**: Calculates FSA/WHO healthiness scores and ranking exposure fairness
-- **NutritionData()**: Loads healthiness score data from files
+### Core Modules
+- **data_models.py**: Simple dataclasses (MealRecipe, QueryResult)
+- **rag_database.py**: RAG knowledge base that loads real MealRec+ data
+- **tools.py**: Tool call interfaces for AI agents
+- **agent.py**: AI agent with LLM-powered reasoning
 
 ## Data Format Notes
 
-- All interaction files use tab-separated format: `[index1]\t[index2]`
-- Healthiness files contain one score per line (line index = entity index)
-- Category mapping: {0: appetizers, 1: main dishes, 2: desserts}
-- Dataset sizes are hardcoded in BasicDataset.__load_data_size()
+- Course categories: {0: appetizers, 1: main dishes, 2: desserts}
+- Health scores: Lower FSA/WHO scores = healthier recipes
+- All files use tab-separated format where applicable
 
 ## Dependencies
 
 The code requires:
-- PyTorch
-- NumPy  
-- SciPy (for sparse matrices)
+- **openai** (required for LLM functionality)
+- Standard library modules only (os, json, typing, dataclasses)

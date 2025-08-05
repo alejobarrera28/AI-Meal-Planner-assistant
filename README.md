@@ -29,8 +29,10 @@ Uses **actual MealRec+ files**:
 
 ## 🚀 Quick Demo
 
+**Prerequisites**: You need an OpenAI API key
 ```bash
-python3 meal_rag_agent.py
+export OPENAI_API_KEY="your-api-key-here"
+python3 demo.py
 ```
 
 Example output:
@@ -51,7 +53,7 @@ Example output:
    Reasoning: Retrieved 5 recipes from main courses category with FSA health score ≤ 8.0
 
 3️⃣ INITIALIZING AI AGENT
-🤖 AI Agent initialized with rule-based reasoning
+🤖 AI Agent initialized with LLM capabilities
 
 4️⃣ AGENT REASONING DEMONSTRATIONS
 🤖 Agent Test 1: 'I want a healthy main course'
@@ -61,45 +63,42 @@ Example output:
 🔧 Tool results: Found 2 relevant data points
 📊 Agent made 2 tool calls
 🔍 Retrieved 5 recipes from RAG
-💭 Reasoning: Used rule-based selection to find 1 recipes matching your healthy health preference  
+💭 Reasoning: [LLM-generated reasoning based on health scores and user preferences]
 🍽️  Recommended: 1 recipes
-   - Grilled Herb Chicken (main, Health: FSA 6.2, WHO 5.8)
+   - [LLM-selected recipe based on optimal health scores]
 ```
 
 ## 🔧 Core Components
 
-### 1. RAG Database (`MealRecRAGDatabase`)
+### 1. RAG Database (`rag_database.py`)
 ```python
+from rag_database import MealRecRAGDatabase
+
 # Loads real MealRec+ dataset files
 rag_db = MealRecRAGDatabase("MealRec+/MealRec+H")
 
 # Retrieval with filtering
-result = rag_db.retrieve_recipes(
-    category=1,  # main courses
-    max_fsa_score=8.0,  # healthy threshold
-    limit=10
-)
+result = rag_db.retrieve_recipes(category=1, max_fsa_score=8.0, limit=10)
 ```
 
-### 2. Tool Calls (`MealPlanningTools`)
+### 2. Tool Calls (`tools.py`)
 ```python
+from tools import MealPlanningTools
+
 tools = MealPlanningTools(rag_db)
 
 # Structured function calls
-recipes = tools.search_healthy_recipes(
-    category="main", 
-    health_preference="healthy"
-)
-
-# Health analysis
-metrics = tools.calculate_health_metrics(["Grilled Herb Chicken"])
+recipes = tools.search_healthy_recipes(category="main", health_preference="healthy")
+analysis = tools.analyze_meal_compositions(sample_size=5)
 ```
 
-### 3. AI Agent (`MealPlanningAgent`)
+### 3. AI Agent (`agent.py`)
 ```python
-agent = MealPlanningAgent(rag_db, openai_api_key="optional")
+from agent import MealPlanningAgent
 
-# Reasoning chain: Parse → Tools → Reasoning → Response
+agent = MealPlanningAgent(rag_db, openai_api_key="required")
+
+# LLM reasoning chain: Parse → Tools → LLM Analysis → Response
 result = agent.plan_meal("I want a healthy 3-course meal")
 ```
 
@@ -119,7 +118,7 @@ result = agent.plan_meal("I want a healthy 3-course meal")
 - Request parsing and intent recognition
 - Multi-step reasoning chains
 - Tool orchestration and decision making
-- Fallback strategies (rule-based vs LLM)
+- LLM-powered intelligent reasoning
 
 ## 📈 Dataset Statistics
 
@@ -163,21 +162,26 @@ Perfect for demonstrating:
 
 ## ⚡ Technical Implementation
 
-- **Pure Python**: No complex dependencies
+- **LLM-Powered**: Uses OpenAI GPT-4 for intelligent reasoning
 - **Real Data**: Actual MealRec+ research dataset
 - **Modular Design**: Clear separation of RAG/Tools/Agent
 - **Educational Focus**: Extensive logging and reasoning chains
-- **LLM Optional**: Works with or without OpenAI API
+- **API Required**: Requires OpenAI API key for full functionality
 
 ## 🔍 Code Structure
 
 ```
-meal_rag_agent.py
-├── MealRecipe (dataclass)      # Structured data representation
-├── MealRecRAGDatabase          # RAG knowledge base  
-├── MealPlanningTools           # Tool call interfaces
-├── MealPlanningAgent           # AI agent with reasoning
-└── demo_educational_system()   # Complete demonstration
+📁 AI-Meal-Planner-assistant/
+├── 📄 data_models.py          # Data structures (MealRecipe, QueryResult)
+├── 📄 rag_database.py         # RAG knowledge base (loads MealRec+ data)
+├── 📄 tools.py                # Tool call interfaces (search, analyze)
+├── 📄 agent.py                # AI agent with LLM reasoning
+├── 📄 demo.py                 # Complete educational demonstration
+└── 📁 MealRec+/               # Real dataset files
+    └── 📁 MealRec+H/
+        ├── course_category.txt
+        ├── healthiness/
+        └── meal_course.txt
 ```
 
 ---
