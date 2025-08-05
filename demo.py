@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-Educational Demo: RAG + Tool Calls + AI Agents
-Perfect for lecture demonstration using real MealRec+ dataset
+Educational Demo: LLM Function Calling Chatbot
+Perfect for lecture demonstration using real MealRec+ dataset with true function calling
 """
 
 import os
 import sys
 from rag_database import MealRecRAGDatabase
 from tools import MealPlanningTools
-from agent import MealPlanningAgent
+from agent import MealPlanningChatbot
 
 
-def demo_educational_system(openai_api_key: str):
+def demo_chatbot_system(openai_api_key: str):
     """
-    Educational demo showing RAG + Tool Calls + AI Agents
+    Educational demo showing LLM Function Calling Chatbot
 
     Args:
         openai_api_key: Required OpenAI API key for LLM functionality
     """
 
-    print("🎓 EDUCATIONAL DEMO: RAG + Tool Calls + AI Agents")
+    print("🎓 EDUCATIONAL DEMO: LLM Function Calling Chatbot")
     print("=" * 60)
 
     # 1. Initialize RAG Database
@@ -41,61 +41,146 @@ def demo_educational_system(openai_api_key: str):
         f"   • Course metadata: {'✅' if summary['has_course_metadata'] else '❌ Not available'}"
     )
 
-    # 2. Setup Tool Calls
-    print("\n2️⃣ SETTING UP TOOL CALLS")
-    tools = MealPlanningTools(rag_db)
+    # 2. Initialize Function Calling Chatbot
+    print("\n2️⃣ INITIALIZING FUNCTION CALLING CHATBOT")
+    chatbot = MealPlanningChatbot(rag_db, openai_api_key)
 
-    # Demo tool call
-    print("\n🔧 Demo Tool Call: search_healthy_recipes")
-    tool_result = tools.search_healthy_recipes(
-        category="main", health_preference="healthy"
-    )
-    print(f"   Found: {tool_result['recipes_found']} recipes")
-    print(f"   Reasoning: {tool_result['reasoning']}")
+    # Show available tools
+    print(f"\n🔧 AVAILABLE TOOLS FOR LLM:")
+    tool_names = [
+        "filter_courses", "generate_meal_plan", "calculate_health_score",
+        "get_user_history", "swap_for_healthier", "summarize_recipe",
+        "search_courses_by_category", "find_healthy_courses", 
+        "get_meal_composition", "recommend_similar_meals"
+    ]
+    for i, tool in enumerate(tool_names, 1):
+        print(f"   {i:2d}. {tool}")
 
-    # 3. Initialize AI Agent
-    print("\n3️⃣ INITIALIZING AI AGENT")
-    agent = MealPlanningAgent(rag_db, openai_api_key)
+    # 3. Demonstrate Conversational Function Calling
+    print("\n3️⃣ CHATBOT CONVERSATIONS WITH FUNCTION CALLING")
 
-    # 4. Agent Reasoning Demonstrations
-    print("\n4️⃣ AGENT REASONING DEMONSTRATIONS")
-
-    test_queries = [
-        "I want a healthy main course",
-        "Give me a very healthy appetizer",
-        "Plan a 3-course healthy meal",
+    demo_conversations = [
+        "I want a healthy 3-course meal for weight loss",
+        "Can you find me some very healthy appetizers?",
+        "Tell me about course 12345",
+        "What's in meal 674?",
+        "Find me a healthier alternative to course 851"
     ]
 
-    for i, query in enumerate(test_queries, 1):
-        print(f"\n🤖 Agent Test {i}: '{query}'")
-        print("-" * 50)
-
+    for i, query in enumerate(demo_conversations, 1):
+        print(f"\n🗣️  CONVERSATION {i}")
+        print("=" * 50)
+        
         try:
-            result = agent.plan_meal(query)
-
-            print(f"📊 Agent made {result['tool_calls_made']} tool calls")
-            print(f"🔍 Retrieved {result['rag_retrieval_count']} recipes from RAG")
-            print(f"💭 Reasoning: {result['agent_reasoning']}")
-            print(f"🍽️  Recommended: {len(result['recommended_recipes'])} recipes")
-
-            for recipe in result["recommended_recipes"]:
-                print(f"   - {recipe}")
-
+            chatbot.chat(query)
+            print(f"\n✅ Conversation completed successfully")
+            
         except Exception as e:
-            print(f"❌ Error: {e}")
+            print(f"❌ Error in conversation: {e}")
             print("   Make sure you have a valid OpenAI API key set.")
+        
+        # Reset conversation for next demo
+        if i < len(demo_conversations):
+            chatbot.reset_conversation()
+            print("🔄 Conversation reset for next demo\n")
+
+    # 4. Interactive Mode (Optional)
+    print("\n4️⃣ INTERACTIVE MODE")
+    print("You can now chat with the meal planning assistant!")
+    print("Available commands:")
+    print("  - Type your meal planning questions")
+    print("  - Type 'quit' to exit")
+    print("  - Type 'reset' to clear conversation history")
+    
+    chatbot.reset_conversation()  # Fresh start for interactive mode
+    
+    try:
+        while True:
+            print("\n" + "-" * 50)
+            user_input = input("You: ").strip()
+            
+            if user_input.lower() in ['quit', 'exit', 'q']:
+                print("👋 Goodbye!")
+                break
+            elif user_input.lower() == 'reset':
+                chatbot.reset_conversation()
+                continue
+            elif not user_input:
+                continue
+                
+            try:
+                chatbot.chat(user_input)
+                # Response already printed by chatbot
+            except KeyboardInterrupt:
+                print("\n👋 Goodbye!")
+                break
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                
+    except KeyboardInterrupt:
+        print("\n👋 Goodbye!")
+
+
+def demo_tool_capabilities():
+    """Quick demo of tool capabilities without LLM"""
+    print("\n🔧 TOOL CAPABILITIES DEMO (No LLM Required)")
+    print("=" * 50)
+    
+    # Initialize just the RAG database and tools
+    rag_db = MealRecRAGDatabase()
+    tools = MealPlanningTools(rag_db)
+    
+    print("\n📋 Sample Tool Calls:")
+    
+    # 1. Filter courses
+    print("\n1. Filter healthy main courses:")
+    result = tools.filter_courses({
+        "category": "main",
+        "max_fsa_score": 6.0,
+        "limit": 3
+    })
+    print(f"   Found {len(result['courses'])} courses")
+    for course in result['courses'][:2]:
+        print(f"   - {course['course_name']} (FSA: {course['fsa_score']})")
+    
+    # 2. Generate meal plan
+    print("\n2. Generate weight loss meal plan:")
+    result = tools.generate_meal_plan({
+        "health_focus": "weight_loss"
+    })
+    print(f"   Created {result['courses_included']}-course meal")
+    print(f"   Average FSA score: {result['average_fsa_score']}")
+    
+    # 3. Get meal composition
+    print("\n3. Analyze meal composition:")
+    first_meal_id = list(rag_db.meal_course_mapping.keys())[0]
+    result = tools.get_meal_composition(first_meal_id)
+    print(f"   Meal {first_meal_id} has {result['course_count']} courses")
+    print(f"   Average health score: {result['average_scores']['fsa']}")
+    
+    print("\n✅ Tool capabilities demonstrated!")
 
 
 def main():
     """Main entry point"""
     # Check for API key
     api_key = os.getenv("OPENAI_API_KEY")
+    
     if not api_key:
-        print("❌ Error: OpenAI API key required!")
-        print("Set your API key: export OPENAI_API_KEY='your-key-here'")
+        print("❌ No OpenAI API key found!")
+        print("\nYou can either:")
+        print("1. Set API key: export OPENAI_API_KEY='your-key-here'")
+        print("2. Run tool demo only (no LLM required)")
+        
+        choice = input("\nRun tool demo without LLM? (y/n): ").strip().lower()
+        if choice in ['y', 'yes']:
+            demo_tool_capabilities()
+        else:
+            print("Set your API key and try again.")
         sys.exit(1)
-
-    demo_educational_system(api_key)
+    
+    print("🔑 OpenAI API key found - running full chatbot demo")
+    demo_chatbot_system(api_key)
 
 
 if __name__ == "__main__":
